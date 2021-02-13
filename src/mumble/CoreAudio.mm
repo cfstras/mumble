@@ -557,25 +557,25 @@ CoreAudioInput::CoreAudioInput() {
 }
 
 bool CoreAudioInput::openAUHAL(AudioStreamBasicDescription &streamDescription){
-	Component comp;
-	ComponentDescription desc;
+	AudioComponent comp;
+    AudioComponentDescription desc;
 	UInt32 val, len;
 
 	desc.componentType         = kAudioUnitType_Output;
-	desc.componentSubType      = kAudioUnitSubType_HALOutput;
-	desc.componentManufacturer = kAudioUnitManufacturer_Apple;
+    desc.componentSubType      = kAudioUnitSubType_HALOutput;
+    desc.componentManufacturer = kAudioUnitManufacturer_Apple;
 	desc.componentFlags        = 0;
 	desc.componentFlagsMask    = 0;
 
 	qDebug("CoreAudioInput: Use AUHAL as IO AudioUnit.");
 
-	comp = FindNextComponent(nullptr, &desc);
+	comp = AudioComponentFindNext(nullptr, &desc);
 	if (!comp) {
 		qWarning("CoreAudioInput: Unable to find AUHAL.");
 		return false;
 	}
 
-	CHECK_RETURN_FALSE(OpenAComponent(comp, &auHAL), "CoreAudioInput: Unable to open AUHAL component.");
+	CHECK_RETURN_FALSE(AudioComponentInstanceNew(comp, &auHAL), "CoreAudioInput: Unable to open AUHAL component.");
 
 	val = 1;
 	CHECK_RETURN_FALSE(AudioUnitSetProperty(auHAL, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Input,
@@ -932,22 +932,22 @@ void CoreAudioOutput::run() {
 		qWarning() << "CoreAudioOutput: " << e.what();
 	}
 
-	Component comp;
-	ComponentDescription desc;
+	AudioComponent comp;
+	AudioComponentDescription desc;
 
-	desc.componentType         = kAudioUnitType_Output;
-	desc.componentSubType      = kAudioUnitSubType_HALOutput;
-	desc.componentManufacturer = kAudioUnitManufacturer_Apple;
+    desc.componentType         = kAudioUnitType_Output;
+    desc.componentSubType      = kAudioUnitSubType_HALOutput;
+    desc.componentManufacturer = kAudioUnitManufacturer_Apple;
 	desc.componentFlags        = 0;
 	desc.componentFlagsMask    = 0;
 
-	comp = FindNextComponent(nullptr, &desc);
+	comp = AudioComponentFindNext(nullptr, &desc);
 	if (!comp) {
 		qWarning("CoreAudioOuput: Unable to find AudioUnit.");
 		return;
 	}
 
-	CHECK_RETURN(OpenAComponent(comp, &auHAL),
+	CHECK_RETURN(AudioComponentInstanceNew(comp, &auHAL),
 	             "CoreAudioOutput: Unable to open AudioUnit component.");
 
 	CHECK_RETURN(AudioUnitInitialize(auHAL),
